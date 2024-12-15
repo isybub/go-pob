@@ -86,8 +86,8 @@ func (m *ModDB) Sum(modType mod.Type, cfg *ListCfg, names ...string) float64 {
 				(cfg == nil || cfg.Source == nil || *cfg.Source == mo.GetSource()) {
 
 				value := m.evalMod(mo, cfg)
-				if value != nil {
-					result += value.(float64)
+				if value != nil && value.Type() == mod.ModValueMultiTypeFloat {
+					result += value.Float()
 				}
 			}
 		}
@@ -109,7 +109,7 @@ func (m *ModDB) Flag(cfg *ListCfg, names ...string) bool {
 				(cfg == nil || cfg.Source == nil || *cfg.Source == mo.GetSource()) {
 
 				value := m.evalMod(mo, cfg)
-				if value != nil && value.(bool) {
+				if value != nil && value.Type() == mod.ModValueMultiTypeFlag {
 					return true
 				}
 			}
@@ -136,8 +136,8 @@ func (m *ModDB) More(cfg *ListCfg, names ...string) float64 {
 				(cfg == nil || cfg.Source == nil || *cfg.Source == mo.GetSource()) {
 
 				value := m.evalMod(mo, cfg)
-				if value != nil {
-					result = result * (1 + value.(float64)/100)
+				if value != nil && value.Type() == mod.ModValueMultiTypeFloat {
+					result = result * (1 + value.Float()/100)
 				}
 			}
 		}
@@ -150,7 +150,7 @@ func (m *ModDB) More(cfg *ListCfg, names ...string) float64 {
 	return result
 }
 
-func (m *ModDB) Override(cfg *ListCfg, names ...string) interface{} {
+func (m *ModDB) Override(cfg *ListCfg, names ...string) *mod.ModValueMulti {
 	mappedNames := make(map[string]bool, 0)
 	for _, name := range names {
 		mappedNames[name] = true

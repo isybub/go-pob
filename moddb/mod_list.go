@@ -59,7 +59,6 @@ func (m *ModList) List(cfg *ListCfg, names ...string) []interface{} {
 		if _, ok := mappedNames[mo.Name()]; !ok {
 			continue
 		}
-
 		if mo.Type() == mod.TypeList &&
 			(cfg == nil || cfg.Flags == nil || (*cfg.Flags)&mo.Flags() == mo.Flags()) &&
 			(cfg == nil || cfg.KeywordFlags == nil || mod.MatchKeywordFlags(*cfg.KeywordFlags, mo.KeywordFlags())) &&
@@ -67,7 +66,7 @@ func (m *ModList) List(cfg *ListCfg, names ...string) []interface{} {
 
 			value := m.evalMod(mo, cfg)
 			if value != nil {
-				result = append(result, value)
+				result = append(result, value.ValueList)
 			}
 		}
 	}
@@ -98,8 +97,8 @@ func (m *ModList) Sum(modType mod.Type, cfg *ListCfg, names ...string) float64 {
 			(cfg == nil || cfg.Source == nil || *cfg.Source == mo.GetSource()) {
 
 			value := m.evalMod(mo, cfg)
-			if value != nil {
-				result += value.(float64)
+			if value != nil && value.Type() == mod.ModValueMultiTypeFloat {
+				result += value.Float()
 			}
 		}
 	}
@@ -130,8 +129,8 @@ func (m *ModList) More(cfg *ListCfg, names ...string) float64 {
 			(cfg == nil || cfg.Source == nil || *cfg.Source == mo.GetSource()) {
 
 			value := m.evalMod(mo, cfg)
-			if value != nil {
-				result = result * (1 + value.(float64)/100)
+			if value != nil && value.Type() == mod.ModValueMultiTypeFloat {
+				result = result * (1 + value.Float()/100)
 			}
 		}
 	}
@@ -160,7 +159,7 @@ func (m *ModList) Flag(cfg *ListCfg, names ...string) bool {
 			(cfg == nil || cfg.Source == nil || *cfg.Source == mo.GetSource()) {
 
 			value := m.evalMod(mo, cfg)
-			if value != nil && value.(bool) {
+			if value != nil && value.Type() == mod.ModValueMultiTypeFlag {
 				return true
 			}
 		}
@@ -175,7 +174,7 @@ func (m *ModList) Flag(cfg *ListCfg, names ...string) bool {
 	return false
 }
 
-func (m *ModList) Override(cfg *ListCfg, names ...string) interface{} {
+func (m *ModList) Override(cfg *ListCfg, names ...string) *mod.ModValueMulti {
 	mappedNames := make(map[string]bool, 0)
 	for _, name := range names {
 		mappedNames[name] = true

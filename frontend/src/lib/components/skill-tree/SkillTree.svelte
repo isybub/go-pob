@@ -1,10 +1,10 @@
 <script lang="ts">
   import { Canvas, Layer, type Render } from 'svelte-canvas';
-  import type { Node, Tree } from '../../skill_tree/types';
+  import type { Node, Tree } from '$lib/skill_tree/types';
   import { calculateNodePos, distance, drawnNodes, classStartNodes, type Point } from '../../skill_tree';
   import { onMount } from 'svelte';
-  import { currentBuild } from '../../global';
-  import { syncWrap } from '../../go/worker';
+  import { currentBuild, zoomSensitivity } from '$lib/global';
+  import { syncWrap } from '$lib/go/worker';
   import { get, writable } from 'svelte/store';
   import { logError } from '$lib/utils';
   import AllSkillNodes from '$lib/components/skill-tree/AllSkillNodes.svelte';
@@ -240,19 +240,13 @@
 
   const onScroll = (event: Event) => {
     if (event instanceof WheelEvent) {
-      if (event.deltaY > 0) {
-        if (scaling < 30) {
-          offsetX += event.offsetX;
-          offsetY += event.offsetY;
-        }
-      } else {
-        if (scaling > 3) {
-          offsetX -= event.offsetX;
-          offsetY -= event.offsetY;
-        }
-      }
+      const scalingAdjustment = Math.pow(2, $zoomSensitivity - 5) * (event.deltaY / 100);
+      const newScaling = Math.min(30, Math.max(3, scaling + scalingAdjustment));
 
-      scaling = Math.min(30, Math.max(3, scaling + event.deltaY / 100));
+      // Keep the rescaled mouse position constant
+      offsetX += event.offsetX * (newScaling - scaling);
+      offsetY += event.offsetY * (newScaling - scaling);
+      scaling = newScaling;
 
       event.preventDefault();
       event.stopPropagation();

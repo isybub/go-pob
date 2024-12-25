@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fontScaling } from '$lib/global';
+  import { fontScaling, zoomSensitivity } from '$lib/global';
 
   let {
     onclose
@@ -16,6 +16,11 @@
       <div class="flex flex-row gap-1">
         <input type="range" min="6" max="18" bind:value={$fontScaling} step="0.5" class="slider" />
         <span>{$fontScaling}pt</span>
+      </div>
+      <span>Zoom Sensitivity:</span>
+      <div class="flex flex-row gap-1">
+        <input type="range" min="1" max="10" bind:value={$zoomSensitivity} step="0.1" class="slider" />
+        <span>{$zoomSensitivity}</span>
       </div>
     </div>
   </fieldset>

@@ -3,6 +3,7 @@
   import type { Node } from '../../skill_tree/types';
   import { type Point } from '../../skill_tree';
   import { wrapText } from '$lib/components/skill-tree/common';
+  import { devMode } from '$lib/global';
 
   interface Props {
     hoveredNode?: Node;
@@ -16,7 +17,10 @@
 
   const render: Render = ({ context }) => {
     if (hoveredNode) {
-      const nodeName = hoveredNode.name || 'N/A';
+      let nodeName = hoveredNode.name || 'N/A';
+      if ($devMode) {
+        nodeName += ' (' + hoveredNode.skill + ')';
+      }
       const nodeStats: { text: string; special: boolean }[] = (hoveredNode.stats || []).map((s) => ({
         text: s,
         special: false

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fontScaling, zoomSensitivity } from '$lib/global';
+  import { fontScaling, zoomSensitivity, devMode } from '$lib/global';
 
   let {
     onclose
@@ -12,15 +12,19 @@
   <fieldset class="border border-white bg-neutral-900 p-2 mt-4 min-w-[15vw]">
     <legend class="container">Application Options</legend>
     <div class="side-by-side-max-content w-full">
-      <span>Font Scaling:</span>
+      <label for="options-font-scaling">Font Scaling:</label>
       <div class="flex flex-row gap-1">
-        <input type="range" min="6" max="18" bind:value={$fontScaling} step="0.5" class="slider" />
-        <span>{$fontScaling}pt</span>
+        <input id="options-font-scaling" type="range" min="6" max="18" bind:value={$fontScaling} step="0.5" class="slider" />
+        <span aria-hidden="true">{$fontScaling}pt</span>
       </div>
-      <span>Zoom Sensitivity:</span>
+      <label for="options-zoom-sensitivity">Zoom Sensitivity:</label>
       <div class="flex flex-row gap-1">
-        <input type="range" min="1" max="10" bind:value={$zoomSensitivity} step="0.1" class="slider" />
-        <span>{$zoomSensitivity}</span>
+        <input id="options-zoom-sensitivity" type="range" min="1" max="10" bind:value={$zoomSensitivity} step="0.1" class="slider" />
+        <span aria-hidden="true">{$zoomSensitivity}</span>
+      </div>
+      <label for="options-dev-mode">Dev mode:</label>
+      <div class="flex flex-row gap-1">
+        <input id="options-dev-mode" type="checkbox" bind:checked={$devMode} />
       </div>
     </div>
   </fieldset>

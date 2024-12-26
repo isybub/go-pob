@@ -90,8 +90,8 @@ jobs:
         working-directory: frontend
         run: pnpm run build
 
-  test-x86:
-    name: Test (x86)
+  test-backend-x86:
+    name: Test Backend (x86)
     strategy:
       fail-fast: false
       matrix:
@@ -111,8 +111,8 @@ jobs:
       - name: Test
         run: go test -v ./...
 
-  test-wasm:
-    name: Test (wasm)
+  test-backend-wasm:
+    name: Test Backend (wasm)
     runs-on: ubuntu-latest
     needs:
       - build-backend
@@ -134,3 +134,28 @@ jobs:
         env:
           GOOS: js
           GOARCH: wasm
+
+  test-frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+    needs:
+      - build-frontend
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm i
+        working-directory: frontend
+
+      - name: Test
+        run: pnpm run test
+        working-directory: frontend

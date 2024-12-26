@@ -59,12 +59,18 @@ tasks:
     desc: "Run all Go tests"
     cmds:
       - go test -v ./...
+  
+  test-frontend:
+    desc: "Run all frontend tests"
+    dir: ./frontend/
+    cmds:
+      - pnpm run test
 
   test:
     desc: "Run all tests"
     cmds:
       - task: test-go
-
+      - task: test-frontend
   lint-go:
     desc: "Lint all Go code"
     cmds:

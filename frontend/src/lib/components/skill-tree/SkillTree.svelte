@@ -12,6 +12,7 @@
   import AllGroups from '$lib/components/skill-tree/AllGroups.svelte';
   import ClassImage from '$lib/components/skill-tree/ClassImage.svelte';
   import Tooltip from '$lib/components/skill-tree/Tooltip.svelte';
+  import { calculateAllocationPath, type PrecalculatedAllocationPaths } from './paths';
 
   let currentClass: string | undefined = $state();
   $effect(() => {
@@ -37,10 +38,32 @@
   let offsetX = $state(0);
   let offsetY = $state(0);
 
-  let activeNodes: number[] | undefined = $state();
+  let activeNodes: number[] = $state([]);
+
   $effect(() => {
-    $currentBuild?.Build?.PassiveNodes?.then((newNodes) => (activeNodes = newNodes)).catch(logError);
+    $currentBuild?.Build?.PassiveNodes?.then((newNodes) => (activeNodes = newNodes ?? [])).catch(logError);
   });
+
+  function precalculateAllocationPaths(active: number[]): Promise<PrecalculatedAllocationPaths> {
+    const version = skillTreeVersion || '3_18';
+    const rootNodes = classStartNodes[skillTree.classes.findIndex((c) => c.name === currentClass)];
+    return syncWrap
+      ?.CalculateAllocationPaths(
+        version,
+        // Need to clone; can't directly marshal a state-proxy to go
+        [...active],
+        rootNodes
+      )
+      .then((paths) => paths ?? {})
+      .catch((e: Error) => {
+        logError(e);
+        return {};
+      });
+  }
+
+  // Must be recalculated when the active nodes change or when the graph topology
+  // changes (e.g. socketing a Thread of Hope).
+  let allocationPaths: Promise<PrecalculatedAllocationPaths> = $derived(precalculateAllocationPaths(activeNodes));
 
   let clickNode = (node: Node) => {
     const nodeId = node.skill ?? -1;
@@ -48,17 +71,16 @@
       void syncWrap?.DeallocateNodes(nodeId);
       currentBuild.set($currentBuild);
     } else {
-      // TODO: Needs support for ascendancies or any other disconnect groups
-      const rootNodes = classStartNodes[skillTree.classes.findIndex((c) => c.name === currentClass)];
-      void syncWrap?.CalculateTreePath(skillTreeVersion || '3_18', [...rootNodes, ...(activeNodes ?? [])], nodeId).then((pathData) => {
-        if (!pathData) {
-          return;
-        }
-        // The first in the path is always an already allocated node
-        const isRootInPath = rootNodes.includes(pathData[0]);
-        void syncWrap?.AllocateNodes(isRootInPath ? pathData : pathData.slice(1));
-        currentBuild.set($currentBuild);
-      });
+      allocationPaths
+        .then((paths) => {
+          const path = calculateAllocationPath(paths, nodeId);
+          if (!path) {
+            return;
+          }
+          void syncWrap?.AllocateNodes(path);
+          currentBuild.set($currentBuild);
+        })
+        .catch(logError);
     }
   };
 
@@ -148,13 +170,12 @@
     }
 
     if ($hoveredNode !== undefined && currentClass) {
-      const rootNodes = classStartNodes[skillTree.classes.findIndex((c) => c.name === currentClass)];
       const target = $hoveredNode.skill!;
-      syncWrap
-        .CalculateTreePath(skillTreeVersion || '3_18', [...rootNodes, ...(activeNodes ?? [])], target)
-        .then((data) => {
-          if (data && get(hoveredNode)) {
-            hoverPath.set(data);
+      allocationPaths
+        .then((paths) => {
+          const path = calculateAllocationPath(paths, target);
+          if (path && get(hoveredNode)) {
+            hoverPath.set(path);
           }
         })
         .catch(logError);

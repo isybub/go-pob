@@ -23,7 +23,7 @@ export const initializeCrystalline = () => {
     InitLogging: globalThis['go']['go-pob']['config']['InitLogging']
   };
   exposition = {
-    CalculateTreePath: globalThis['go']['go-pob']['exposition']['CalculateTreePath'],
+    CalculateAllocationPaths: globalThis['go']['go-pob']['exposition']['CalculateAllocationPaths'],
     GetRawTree: globalThis['go']['go-pob']['exposition']['GetRawTree'],
     GetSkillGems: globalThis['go']['go-pob']['exposition']['GetSkillGems'],
     GetStatByIndex: globalThis['go']['go-pob']['exposition']['GetStatByIndex']

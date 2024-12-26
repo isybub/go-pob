@@ -38,7 +38,7 @@ func Expose() *crystalline.Exposer {
 	e.ExposeFuncOrPanic(GetSkillGems)
 	e.ExposeFuncOrPanicPromise(GetRawTree)
 	e.ExposeFuncOrPanic(GetStatByIndex)
-	e.ExposeFuncOrPanic(CalculateTreePath)
+	e.ExposeFuncOrPanic(CalculateAllocationPaths)
 
 	info, _ := debug.ReadBuildInfo()
 	e.ExposeOrPanic(info, "pob", "BuildInfo")

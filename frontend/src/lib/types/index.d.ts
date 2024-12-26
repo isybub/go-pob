@@ -329,7 +329,7 @@ export declare namespace exposition {
     Support: boolean;
     CalculateStuff(): void;
   }
-  function CalculateTreePath(version: string, activeNodes?: Array<number>, target: number): (Array<number> | undefined);
+  function CalculateAllocationPaths(version: string, activeNodes: Array<number>, rootNodes: Array<number>): (Record<number, number> | undefined);
   function GetRawTree(version: string): Promise<(Uint8Array | undefined)>;
   function GetSkillGems(): (Array<exposition.SkillGem> | undefined);
   function GetStatByIndex(id: number): (poe.Stat | undefined);
@@ -348,6 +348,21 @@ export declare namespace fwd {
     Reset(rd?: unknown): void;
     Skip(n: number): [number, Error];
     WriteTo(w?: unknown): [number, Error];
+  }
+}
+export declare namespace mod {
+  interface ModValueMulti {
+    ValueFloat: number;
+    ValueFlag: boolean;
+    ValueList?: unknown;
+    Clone(): (mod.ModValueMulti | undefined);
+    Flag(): boolean;
+    Float(): number;
+    List(): (unknown | undefined);
+    SetFlag(v: boolean): void;
+    SetFloat(v: number): void;
+    SetList(v?: unknown): void;
+    Type(): string;
   }
 }
 export declare namespace moddb {
@@ -371,7 +386,7 @@ export declare namespace moddb {
     GetMultiplier(arg1: string, arg2?: moddb.ListCfg, arg3: boolean): number;
     List(cfg?: moddb.ListCfg, names?: Array<string>): (Array<unknown | undefined> | undefined);
     More(cfg?: moddb.ListCfg, names?: Array<string>): number;
-    Override(cfg?: moddb.ListCfg, names?: Array<string>): (unknown | undefined);
+    Override(cfg?: moddb.ListCfg, names?: Array<string>): (mod.ModValueMulti | undefined);
     Sum(modType: string, cfg?: moddb.ListCfg, names?: Array<string>): number;
   }
   interface ModList {
@@ -384,7 +399,7 @@ export declare namespace moddb {
     GetMultiplier(arg1: string, arg2?: moddb.ListCfg, arg3: boolean): number;
     List(cfg?: moddb.ListCfg, names?: Array<string>): (Array<unknown | undefined> | undefined);
     More(cfg?: moddb.ListCfg, names?: Array<string>): number;
-    Override(cfg?: moddb.ListCfg, names?: Array<string>): (unknown | undefined);
+    Override(cfg?: moddb.ListCfg, names?: Array<string>): (mod.ModValueMulti | undefined);
     Sum(modType: string, cfg?: moddb.ListCfg, names?: Array<string>): number;
   }
   interface ModStore {

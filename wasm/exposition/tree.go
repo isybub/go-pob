@@ -6,8 +6,8 @@ func GetRawTree(version data.TreeVersion) []byte {
 	return data.TreeVersions[version].RawTree()
 }
 
-func CalculateTreePath(version data.TreeVersion, activeNodes []int64, target int64) []int64 {
-	return data.TreeVersions[version].CalculateTreePath(activeNodes, target)
+func CalculateAllocationPaths(version data.TreeVersion, activeNodes []int64, rootNodes []int64) map[int64]int64 {
+	return data.TreeVersions[version].CalculateAllocationPaths(activeNodes, rootNodes)
 }
 
 // TODO: Need some algorithm that figures out which nodes would be disconnected and therefore removed if the target node is removed

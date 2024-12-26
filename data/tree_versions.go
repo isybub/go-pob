@@ -141,82 +141,23 @@ func (v *TreeVersionData) getGraph() (graph.Graph[int64, int64], map[int64]map[i
 				continue
 			}
 
-			_ = g.AddEdge(targetID, *node.Skill)
 			_ = g.AddEdge(*node.Skill, targetID)
+
+			// Most edges are bidirectional, but masteries are an exception;
+			// you can't use a mastery to travel between 2 notables in a cluster
+			if targetNode.IsMastery == nil || !*targetNode.IsMastery {
+				_ = g.AddEdge(targetID, *node.Skill)
+			}
 		}
 	}
 
 	v.graph = g
 
 	// We can pre-calculate the adjacency map, as the graph won't change
+	// (at least, until we add support for thread of hope/impossible escape/etc)
 	v.adjacencyMap, _ = v.graph.AdjacencyMap()
 
 	return v.graph, v.adjacencyMap
-}
-
-func (v *TreeVersionData) CalculateTreePath(activeNodes []int64, target int64) []int64 {
-	g, adjacencyMap := v.getGraph()
-	//found := int64(-1)
-
-	mappedNodes := make(map[int64]bool, len(activeNodes))
-	for _, node := range activeNodes {
-		mappedNodes[node] = true
-	}
-
-	resultPath, _ := BFS(g, adjacencyMap, target, func(value int64) bool {
-		_, ok := mappedNodes[value]
-		return ok
-	})
-
-	return resultPath
-}
-
-// BFS is an adapted version of graph.BFS that also returns the traversal path
-func BFS[K comparable, T any](g graph.Graph[K, T], adjacencyMap map[K]map[K]graph.Edge[K], start K, visit func(K) bool) ([]K, error) {
-	if _, ok := adjacencyMap[start]; !ok {
-		return nil, fmt.Errorf("could not find start vertex with hash %v", start)
-	}
-
-	queue := make([]K, 1)
-	visited := make(map[K]K)
-
-	visited[start] = start
-	queue[0] = start
-
-	found := false
-	currentHash := start
-	for len(queue) > 0 {
-		currentHash = queue[0]
-
-		queue = queue[1:]
-
-		if stop := visit(currentHash); stop {
-			found = true
-			break
-		}
-
-		for adjacency := range adjacencyMap[currentHash] {
-			if _, ok := visited[adjacency]; !ok {
-				visited[adjacency] = currentHash
-				queue = append(queue, adjacency)
-			}
-		}
-	}
-
-	if !found {
-		return []K{}, nil
-	}
-
-	resultPath := make([]K, 0)
-	resultPath = append(resultPath, currentHash)
-
-	next := currentHash
-	for next != start {
-		next = visited[next]
-		resultPath = append(resultPath, next)
-	}
-
-	return resultPath, nil
 }
 
 var TreeVersions = make(map[TreeVersion]*TreeVersionData)

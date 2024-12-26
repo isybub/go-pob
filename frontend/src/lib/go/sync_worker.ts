@@ -234,8 +234,8 @@ class PoBWorker {
     void this.Tick('DeallocateNode');
   }
 
-  CalculateTreePath(version: string, activeNodes: number[], target: number) {
-    return exposition.CalculateTreePath(version, activeNodes, target);
+  CalculateAllocationPaths(version: string, activeNodes: number[], rootNodes: number[]) {
+    return exposition.CalculateAllocationPaths(version, activeNodes, rootNodes);
   }
 
   BuildInfo() {
